@@ -181,6 +181,7 @@ func (rm *RoleManager) getPatternDomain(domain string) []string {
 
 // HasLink determines whether role: name1 inherits role: name2.
 func (rm *RoleManager) HasLink(name1 string, name2 string, domain ...string) (bool, error) {
+	res := false
 	switch len(domain) {
 	case 0:
 		domain = []string{defaultDomain}
@@ -193,9 +194,6 @@ func (rm *RoleManager) HasLink(name1 string, name2 string, domain ...string) (bo
 		matchedDomain := rm.getPatternDomain(domain[0])
 
 		for _, domain := range matchedDomain {
-			if !rm.hasRole(domain, name1) || !rm.hasRole(domain, name2) {
-				continue
-			}
 
 			name1WithDomain := getNameWithDomain(domain, name1)
 			name2WithDomain := getNameWithDomain(domain, name2)
@@ -224,12 +222,15 @@ func (rm *RoleManager) HasLink(name1 string, name2 string, domain ...string) (bo
 			} else {
 				role1 := rm.roles.createRole(name1WithDomain)
 				result := role1.hasRole(name2WithDomain, rm.maxHierarchyLevel)
+
+				fmt.Printf("HasLink: %v , %v , %v => %v\n", name1WithDomain, name2WithDomain, domain, result)
+
 				if result {
-					return true, nil
+					res = true
 				}
 			}
 		}
-		return false, nil
+		return res, nil
 	default:
 		return false, errors.ERR_DOMAIN_PARAMETER
 	}
@@ -361,8 +362,6 @@ func (rm *RoleManager) domainMatch(domain1, domain2 string) bool {
 		return matched
 	}
 }
-
-
 
 // Roles represents all roles in a domain
 type Roles struct {
