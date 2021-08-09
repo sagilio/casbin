@@ -611,3 +611,11 @@ func TestAllMatchModel(t *testing.T) {
 	testDomainEnforce(t, e, "alice", "domain2", "/book/1", "read", false)
 	testDomainEnforce(t, e, "alice", "domain2", "/book/1", "write", true)
 }
+
+func Test855Model(t *testing.T) {
+	e, _ := NewEnforcer("examples/855.conf", "examples/855.csv")
+	e.AddNamedDomainMatchingFunc("g", "KeyMatch", util.KeyMatch)
+	_ = e.BuildRoleLinks()
+	testDomainEnforce(t, e, "user||1", "tenant||1", "menu||2", "*", true)
+	testDomainEnforce(t, e, "user||1", "tenant||2", "menu||2", "*", false)
+}
